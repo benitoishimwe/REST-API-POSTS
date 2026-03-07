@@ -1,10 +1,14 @@
 {
-  "name": "rest--tut",
+  "name": "rest-api-posts",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Simple RESTful API for managing posts built with Express and MongoDB.",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +18,17 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mongoose": "^6.2.2",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "supertest": "^7.1.1"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

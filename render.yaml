@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rest-api-posts
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: DB_CONNECTION
+        sync: false
+      - key: NODE_ENV
+        value: production
+

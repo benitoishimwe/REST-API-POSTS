@@ -1,62 +1,73 @@
 const express = require('express');
-const { route } = require('express/lib/application');
-const router = express.Router();
 const Post = require('../models/Post');
 
-// GET BACK ALL THE POSTS
+const router = express.Router();
+
+// Get all posts
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find();
-    res.json(posts);
-  } catch (err) {
-    res.json({ message: err });
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch posts' });
   }
 });
 
-// SUBMITS A POST
+// Create a post
 router.post('/', async (req, res) => {
-  const post = new Post({
-    title: req.body.title,
-    description: req.body.description,
-  });
+  const { title, description } = req.body;
+  if (!title || !description) {
+    return res.status(400).json({ message: 'title and description are required' });
+  }
+
   try {
+    const post = new Post({ title, description });
     const savedPost = await post.save();
-    res.json(savedPost);
-  } catch (err) {
-    res.json({ message: err });
+    res.status(201).json(savedPost);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create post' });
   }
 });
 
-// SPECIFIC POST
+// Get a specific post by ID
 router.get('/:postId', async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId);
-    res.json(post);
-  } catch (err) {
-    res.json({ message: err });
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch post' });
   }
 });
 
-// Delete Post
+// Delete a post
 router.delete('/:postId', async (req, res) => {
   try {
-    const removedPost = await Post.remove({ _id: req.params.postId });
-    res.json(removedPost);
-  } catch (err) {
-    res.json({ message: err });
+    const result = await Post.deleteOne({ _id: req.params.postId });
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete post' });
   }
 });
 
-// Update a post
+// Update a post title
 router.patch('/:postId', async (req, res) => {
+  const { title } = req.body;
+  if (!title) {
+    return res.status(400).json({ message: 'title is required' });
+  }
+
   try {
-    const updatedPost = await Post.updateOne(
+    const result = await Post.updateOne(
       { _id: req.params.postId },
-      { $set: { title: req.body.title } }
+      { $set: { title } }
     );
-    res.json(updatedPost);
-  } catch (err) {
-    res.json({ message: err });
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update post' });
   }
 });
+
 module.exports = router;

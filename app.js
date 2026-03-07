@@ -1,33 +1,32 @@
 const express = require('express');
-const app = express();
-const port = 4000;
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-require('dotenv/config');
+const swaggerUi = require('swagger-ui-express');
+const openApiDocument = require('./openapi.json');
 
-//Middlewares
+const postsRoute = require('./routes/posts');
+
+const app = express();
+
+// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
-//Import Routes
-const postsRoute = require('./routes/posts');
-
+// Routes
 app.use('/posts', postsRoute);
 
-// ROUTES
 app.get('/', (req, res) => {
   res.send('We are on home');
 });
 
-//connect to db
-mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true }, () =>
-  console.log(`connected to DB! to ${process.env.DB_CONNECTION}`)
-);
+// API docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
-// How do we start listening to the server
-/**
- * now listing the server on port number 3000 :)
- */
+// Basic error handler
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  // Log the error in a real app; for now just send 500
+  res.status(500).json({ message: 'Internal server error' });
+});
 
- app.listen(port, ()=>console.log("Server is live at port ${port} 🔥🔥🔥"));
+module.exports = app;
