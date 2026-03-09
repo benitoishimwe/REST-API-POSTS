@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try {
     const posts = await Post.find();
     res.status(200).json(posts);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Failed to fetch posts' });
   }
 });
@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
     const post = new Post({ title, description });
     const savedPost = await post.save();
     res.status(201).json(savedPost);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Failed to create post' });
   }
 });
@@ -37,7 +37,7 @@ router.get('/:postId', async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
     res.status(200).json(post);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Failed to fetch post' });
   }
 });
@@ -47,7 +47,7 @@ router.delete('/:postId', async (req, res) => {
   try {
     const result = await Post.deleteOne({ _id: req.params.postId });
     res.status(200).json(result);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Failed to delete post' });
   }
 });
@@ -65,7 +65,7 @@ router.patch('/:postId', async (req, res) => {
       { $set: { title } }
     );
     res.status(200).json(result);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Failed to update post' });
   }
 });
