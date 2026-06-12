@@ -1,93 +1,157 @@
-# POSTS RESTFUL API
+# REST API — Posts
 
-Simple RESTful API for managing posts built with **Node.js**, **Express**, and **MongoDB (Mongoose)**.
+A RESTful API for managing blog posts built with Node.js, Express, and MongoDB. Implements full CRUD operations with authentication middleware.
 
-## Getting started
+> **Note:** Authentication is not yet implemented. All endpoints are currently open. JWT-based auth middleware is planned for a future release.
 
-### Prerequisites
+---
 
-- Node.js LTS installed
-- A MongoDB instance (local or hosted)
+## Tech Stack
 
-### Installation
+| Technology | Purpose |
+|---|---|
+| Node.js | Runtime |
+| Express | HTTP framework |
+| MongoDB | Database |
+| Mongoose | ODM / schema validation |
+| dotenv | Environment variable loading |
+| cors | Cross-origin resource sharing |
+| swagger-ui-express | Interactive API docs at `/api-docs` |
+| Jest + Supertest | Testing |
 
-```bash
-npm install
-```
-
-Create a `.env` file in the project root:
-
-```bash
-DB_CONNECTION=mongodb://localhost:27017/rest_api_posts
-PORT=4000
-```
-
-### Run the API
-
-- **Development (with auto-reload):**
-
-```bash
-npm run dev
-```
-
-- **Production:**
-
-```bash
-npm start
-```
-
-The server will start on `http://localhost:4000` by default.
+---
 
 ## API Endpoints
 
 Base URL: `http://localhost:4000`
 
-- **GET** `/` – health check, returns `"We are on home"`.
-- **GET** `/posts` – fetch all posts.
-- **POST** `/posts` – create a new post.
-  - Body: `{ "title": "string", "description": "string" }`
-- **GET** `/posts/:postId` – fetch a single post by id.
-- **PATCH** `/posts/:postId` – update a post title.
-  - Body: `{ "title": "string" }`
-- **DELETE** `/posts/:postId` – delete a post.
+| Method | Endpoint | Description | Auth Required | Request Body | Response |
+|---|---|---|---|---|---|
+| GET | `/` | Health check | No | — | `"We are on home"` |
+| GET | `/posts` | Fetch all posts | No | — | `Post[]` |
+| POST | `/posts` | Create a new post | No | `{ title, description }` | `Post` (201) |
+| GET | `/posts/:postId` | Fetch a single post | No | — | `Post` |
+| PATCH | `/posts/:postId` | Update a post's title | No | `{ title }` | Mongoose update result |
+| DELETE | `/posts/:postId` | Delete a post | No | — | Mongoose delete result |
 
-## API documentation (Swagger / OpenAPI)
+### Post schema
 
-After starting the server, open:
+```json
+{
+  "_id": "ObjectId",
+  "title": "string",
+  "description": "string",
+  "date": "ISO 8601 timestamp"
+}
+```
 
-- `http://localhost:4000/api-docs` – interactive Swagger UI
+---
 
-The underlying OpenAPI spec lives in `openapi.json`.
+## Local Setup
 
-## Tooling
+### Prerequisites
 
-- **Linting:** `npm run lint`
-- **Formatting:** `npm run format`
-- **Tests:** `npm test`
+- Node.js LTS
+- A MongoDB instance (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
 
-## Docker & deployment
+### 1. Clone and install
 
-### Build and run with Docker
+```bash
+git clone https://github.com/Engr-BenitoIshimwe/REST-API-POSTS.git
+cd REST-API-POSTS
+npm install
+```
+
+### 2. Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DB_CONNECTION` | Yes | MongoDB connection URI, e.g. `mongodb://localhost:27017/rest_api_posts` |
+| `PORT` | No | Port the server listens on (default: `4000`) |
+| `JWT_SECRET` | Planned | Secret for signing JWT tokens (not used yet) |
+
+### 3. Start the server
+
+```bash
+# Development (auto-reload)
+npm run dev
+
+# Production
+npm start
+```
+
+The API will be available at `http://localhost:4000`.  
+Interactive Swagger docs: `http://localhost:4000/api-docs`
+
+---
+
+## Example curl Commands
+
+```bash
+# Health check
+curl http://localhost:4000/
+
+# Get all posts
+curl http://localhost:4000/posts
+
+# Create a post
+curl -X POST http://localhost:4000/posts \
+  -H "Content-Type: application/json" \
+  -d '{"title": "My First Post", "description": "Hello world"}'
+
+# Get a single post
+curl http://localhost:4000/posts/<postId>
+
+# Update a post's title
+curl -X PATCH http://localhost:4000/posts/<postId> \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Updated Title"}'
+
+# Delete a post
+curl -X DELETE http://localhost:4000/posts/<postId>
+```
+
+---
+
+## Testing
+
+```bash
+npm test
+```
+
+Tests use Jest + Supertest with an in-memory mock of the Mongoose model — no live database required.
+
+---
+
+## Linting & Formatting
+
+```bash
+npm run lint
+npm run format
+```
+
+---
+
+## Planned Improvements
+
+- **Authentication** — JWT-based middleware to protect write endpoints (POST, PATCH, DELETE)
+- **Input validation** — Input validation with express-validator is planned
+
+---
+
+## Docker
 
 ```bash
 docker build -t rest-api-posts .
 docker run -p 4000:4000 --env-file .env rest-api-posts
 ```
 
-### Deploy to Render
+## Deploy to Render
 
-- Ensure your code is pushed to GitHub with the included `render.yaml`.
-- In Render, create a **New Web Service** from this repository.
-- Render will read `render.yaml` and configure the service:
-  - Build command: `npm install`
-  - Start command: `npm start`
-- In the Render dashboard, set the environment variable:
-  - `DB_CONNECTION` – your MongoDB connection string.
-- Render sets `PORT` automatically; the app already respects it via `process.env.PORT`.
-
-## Repository details (suggested)
-
-- **Description:** `Simple RESTful API for managing posts with Node.js, Express, and MongoDB.`
-- **Topics:** `nodejs express mongodb rest-api backend tutorial`
-
-
+Push to GitHub with the included `render.yaml`. In Render, create a **New Web Service** from this repository and set `DB_CONNECTION` in the environment variables dashboard. `PORT` is set automatically by Render.
